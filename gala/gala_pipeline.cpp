@@ -1,5 +1,5 @@
 #include "gala_pipeline.h"
-
+#include "gala_model.h"
 
 //std
 #include <fstream>
@@ -50,22 +50,6 @@ namespace gala
 		 file.close();
 		 return buffer;
 
-
-		 //auto end = file.tellg();
-		 //file.seekg(0, std::ios::beg);
-
-		 //auto size = std::size_t(end - file.tellg());
-
-		 //if (size == 0) // avoid undefined behavior 
-			// return {};
-
-		 //std::vector<std::byte> buffer(size);
-
-		 //if (!file.read((char*)buffer.data(), buffer.size()))
-			// throw std::runtime_error(filePath + ": " + std::strerror(errno));
-
-		 //return buffer;
-
 	 }
 
 	 void GalaPipeline::createGraphicsPipeline(
@@ -83,18 +67,6 @@ namespace gala
 
 		 auto vertCode = readFile(vertFilePath);
 		 auto fragCode = readFile(fragFilePath);
-
-		 //// Create a char vector with the same size as the byte vector
-		 //std::vector<char> charVertCode(vertCode.size());
-		 //std::vector<char> charFragCode(fragCode.size());
-
-		 //char* charVertData = reinterpret_cast<char*>(vertCode.data());
-		 //char* charFragData = reinterpret_cast<char*>(vertCode.data());
-
-		 //std::copy(charVertData, charVertData + vertCode.size(), charVertCode.begin());
-		 //std::copy(charFragData, charFragData + fragCode.size(), charFragCode.begin());
-
-
 		 createShaderModule(vertCode, &vertShaderModule);
 		 createShaderModule(fragCode, &fragShaderModule);
 
@@ -114,13 +86,15 @@ namespace gala
 		 shaderStages[1].pNext = nullptr;
 		 shaderStages[1].pSpecializationInfo = nullptr;
 
-
+		 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^VERTEX^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+		 auto bindingDescriptions = GalaModel::Vertex::getBindingDescriptions();
+		 auto attributeDescriptions = GalaModel::Vertex::getAttributeDescriptions();
 		 VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 		 vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-		 vertexInputInfo.vertexAttributeDescriptionCount = 0;
-		 vertexInputInfo.vertexBindingDescriptionCount = 0;
-		 vertexInputInfo.pVertexAttributeDescriptions = nullptr;
-		 vertexInputInfo.pVertexBindingDescriptions = nullptr;
+		 vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		 vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+		 vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
+		 vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
 
 		 //^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^SCRISSORS^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 		 VkPipelineViewportStateCreateInfo viewportInfo{};

@@ -4,6 +4,7 @@
 #include "gala_pipeline.h"
 #include "gala_device.h"
 #include "gala_swap_chain.h"
+#include "gala_model.h"
 
 //std
 #include <memory>
@@ -26,6 +27,7 @@ namespace gala
 			void run();
 
 		private:
+			void loadModels();
 			void createPipelineLayout();
 			void createPipeline();
 			void createCommandBuffers();
@@ -37,5 +39,6 @@ namespace gala
 			std::unique_ptr<GalaPipeline> galaPipeline;
 			VkPipelineLayout pipelineLayout;
 			std::vector<VkCommandBuffer> commandBuffers;
+			std::unique_ptr<GalaModel> galaModel;
 	};
 }

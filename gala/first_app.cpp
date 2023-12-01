@@ -9,6 +9,7 @@ namespace gala
 {
 	FirstApp::FirstApp()
 	{
+		loadModels();
 		createPipelineLayout();
 		createPipeline();
 		createCommandBuffers();
@@ -27,6 +28,16 @@ namespace gala
 			drawFrame();
 		}
 		vkDeviceWaitIdle(galaDevice.device());
+	}
+
+	void FirstApp::loadModels() {
+		std::vector<GalaModel::Vertex> vertices{
+			{{ 0.0f,-0.5f}},
+			{{ 0.5f, 0.5f}},
+			{{-0.5f, 0.5f}}
+		};
+
+		galaModel = std::make_unique<GalaModel>(galaDevice, vertices);
 	}
 
 	void FirstApp::createPipelineLayout()
@@ -101,7 +112,8 @@ namespace gala
 			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
 			galaPipeline->bind(commandBuffers[i]);
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+			galaModel->bind(commandBuffers[i]);
+			galaModel->draw(commandBuffers[i]);
 
 			vkCmdEndRenderPass(commandBuffers[i]);
 			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)

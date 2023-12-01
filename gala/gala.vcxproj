@@ -245,6 +245,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="first_app.cpp" />
+    <ClCompile Include="gala_model.cpp" />
     <ClCompile Include="gala_pipeline.cpp" />
     <ClCompile Include="gala_window.cpp" />
     <ClCompile Include="main.cpp" />
@@ -253,6 +254,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="first_app.h" />
+    <ClInclude Include="gala_model.h" />
     <ClInclude Include="gala_pipeline.h" />
     <ClInclude Include="gala_window.h" />
     <ClInclude Include="gala_device.h" />
