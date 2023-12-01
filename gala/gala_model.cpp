@@ -43,13 +43,28 @@ namespace gala
 	}
 
 	std::vector<VkVertexInputBindingDescription> GalaModel::Vertex::getBindingDescriptions(){
-		return { {0,sizeof(Vertex),VK_VERTEX_INPUT_RATE_VERTEX} };
+		std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+		bindingDescriptions[0].binding = 0;
+		bindingDescriptions[0].stride = sizeof(Vertex);
+		bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+		return bindingDescriptions;
 	}
 
 
 
 	std::vector<VkVertexInputAttributeDescription> GalaModel::Vertex::getAttributeDescriptions() {
-		return{ {0,0,VK_FORMAT_R32G32_SFLOAT,0} };
+		std::vector< VkVertexInputAttributeDescription> attributeDescriptions(2);
+		attributeDescriptions[0].binding = 0;
+		attributeDescriptions[0].location = 0;
+		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+		attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+		attributeDescriptions[1].binding = 0;
+		attributeDescriptions[1].location = 1;
+		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+		attributeDescriptions[1].offset = offsetof(Vertex,color);
+
+		return attributeDescriptions;
 	}
 
 }

@@ -52,18 +52,15 @@ namespace gala
 	}
 
 	void FirstApp::loadModels() {
-		//std::vector<GalaModel::Vertex> vertices{
-		//	{{ 0.0f,-0.5f}},
-		//	{{ 0.5f, 0.5f}},
-		//	{{-0.5f, 0.5f}}
-		//};
+		std::vector<GalaModel::Vertex> vertices{
+			{{ 0.0f,-0.5f}, {1.0f,0.0f,0.0f}},
+			{{ 0.5f, 0.5f}, {0.0f,1.0f,0.0f}},
+			{{-0.5f, 0.5f}, {0.0f,0.0f,1.0f}}
+		};
+		//std::vector<GalaModel::Vertex> vertices{};
+		//sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });
 
-		//galaModel = std::make_unique<GalaModel>(galaDevice, vertices);
-
-		std::vector<GalaModel::Vertex> vertices{};
-		sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });
 		galaModel = std::make_unique<GalaModel>(galaDevice, vertices);
-
 	}
 
 	void FirstApp::createPipelineLayout()
