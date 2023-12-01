@@ -4,6 +4,7 @@
 #define GLM_FORCE_RADIANS
 #define GLM_FORCE_DEPTH_ZERO_TO_ONE
 #include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 // std
 #include <stdexcept>
@@ -12,14 +13,15 @@
 namespace gala
 {
 	struct SimplePushConstantData
-	{
+	{											 // ( 1 , 0 )
+		glm::mat2 transform{1.f}; //identity matrix ( 0 , 1 )
 		glm::vec2 offset;
 		alignas(16) glm::vec3 color;
 	};
 
 	FirstApp::FirstApp()
 	{
-		loadModels();
+		loadGameObjects();
 		createPipelineLayout();
 		recreateSwapChain();
 		createCommandBuffers();
@@ -61,17 +63,52 @@ namespace gala
 		}
 	}
 
-	void FirstApp::loadModels() {
+	//void FirstApp::loadGameObjects() {
+	//	std::vector<GalaModel::Vertex> vertices{
+	//		{{ 0.0f,-0.5f}, {1.0f,0.0f,0.0f}},
+	//		{{ 0.5f, 0.5f}, {0.0f,1.0f,0.0f}},
+	//		{{-0.5f, 0.5f}, {0.0f,0.0f,1.0f}}
+	//	};
+	//	//sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });
+
+	//	auto galaModel = std::make_shared<GalaModel>(galaDevice, vertices);
+	//	auto triangle = GalaGameObject::createGameObject();
+	//	triangle.model = galaModel;
+	//	triangle.color = { .1f,.8f,.1f };
+	//	triangle.transform2d.translation.x = .2f;
+	//	triangle.transform2d.scale = { 2.f, .5f };
+	//	triangle.transform2d.rotation = .25f * glm::two_pi<float>();
+
+	//	gameObjects.push_back(std::move(triangle));
+	//}
+
+	void FirstApp::loadGameObjects() {
 		std::vector<GalaModel::Vertex> vertices{
-			{{ 0.0f,-0.5f}, {1.0f,0.0f,0.0f}},
-			{{ 0.5f, 0.5f}, {0.0f,1.0f,0.0f}},
-			{{-0.5f, 0.5f}, {0.0f,0.0f,1.0f}}
+			{{0.0f, -0.5f}, {1.0f, 0.0f, 0.0f}},
+			{{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+			{{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}} };
+		auto lveModel = std::make_shared<GalaModel>(galaDevice, vertices);
+
+		// https://www.color-hex.com/color-palette/5361
+		std::vector<glm::vec3> colors{
+			{1.f, .7f, .73f},
+			{1.f, .87f, .73f},
+			{1.f, 1.f, .73f},
+			{.73f, 1.f, .8f},
+			{.73, .88f, 1.f}  //
 		};
-		//sierpinski(vertices, 5, { -0.5f, 0.5f }, { 0.5f, 0.5f }, { 0.0f, -0.5f });
-
-		galaModel = std::make_unique<GalaModel>(galaDevice, vertices);
+		for (auto& color : colors) {
+			color = glm::pow(color, glm::vec3{ 2.2f });
+		}
+		for (int i = 0; i < 40; i++) {
+			auto triangle = GalaGameObject::createGameObject();
+			triangle.model = lveModel;
+			triangle.transform2d.scale = glm::vec2(.5f) + i * 0.025f;
+			triangle.transform2d.rotation = i * glm::pi<float>() * .025f;
+			triangle.color = colors[i % colors.size()];
+			gameObjects.push_back(std::move(triangle));
+		}
 	}
-
 	void FirstApp::createPipelineLayout()
 	{
 		VkPushConstantRange pushConstantRange{};
@@ -143,8 +180,7 @@ namespace gala
 		commandBuffers.clear();
 	}
 
-	void FirstApp::createCommandBuffers()
-	{
+	void FirstApp::createCommandBuffers(){
 		commandBuffers.resize(galaSwapChain->imageCount());
 
 		VkCommandBufferAllocateInfo allocInfo{};
@@ -161,11 +197,7 @@ namespace gala
 
 	}
 
-	void FirstApp::recordCommandBuffer(int imageIndex)
-	{
-		static int frame = 0;
-		frame = (frame + 1) % 1000;
-
+	void FirstApp::recordCommandBuffer(int imageIndex){
 		VkCommandBufferBeginInfo beginInfo{};
 		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 
@@ -201,27 +233,47 @@ namespace gala
 		vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
 		vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-		galaPipeline->bind(commandBuffers[imageIndex]);
-		galaModel->bind(commandBuffers[imageIndex]);
-
-		for (int j = 0; j < 4; j++) {
-			SimplePushConstantData push{};
-			push.offset = {-0.5f + frame * 0.0015f,-0.4f + j * 0.25f};
-			push.color  = { 0.0f, 0.0f, 0.2f + j * 0.20f };
-
-			vkCmdPushConstants(
-				commandBuffers[imageIndex],
-				pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-				0,
-				sizeof(SimplePushConstantData),
-				&push);
-		galaModel->draw(commandBuffers[imageIndex]);
-		}
+		renderGameObjects(commandBuffers[imageIndex]);
 
 		vkCmdEndRenderPass(commandBuffers[imageIndex]);
 		if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to record command buffer!");
+		}
+	}
+
+	void FirstApp::renderGameObjects(VkCommandBuffer commandBuffer)
+	{
+		//update
+		int i = 0;
+		for (auto& obj : gameObjects) {
+			i += 1;
+			obj.transform2d.rotation =
+				glm::mod<float>(obj.transform2d.rotation + 0.0001f * i, 2.f * glm::pi<float>());
+		}
+
+
+
+		// render
+		galaPipeline->bind(commandBuffer);
+
+		for (auto& obj : gameObjects) {
+			//obj.transform2d.rotation = glm::mod(obj.transform2d.rotation + 0.001f, glm::two_pi<float>());
+
+			SimplePushConstantData push{};
+			push.offset = obj.transform2d.translation;
+			push.color = obj.color;
+			push.transform = obj.transform2d.mat2();
+
+			vkCmdPushConstants(
+				commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(SimplePushConstantData),
+				&push);
+			obj.model->bind(commandBuffer);
+			obj.model->draw(commandBuffer);
 		}
 	}
 

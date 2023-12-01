@@ -4,7 +4,7 @@
 #include "gala_pipeline.h"
 #include "gala_device.h"
 #include "gala_swap_chain.h"
-#include "gala_model.h"
+#include "gala_game_object.h"
 
 //std
 #include <memory>
@@ -27,7 +27,7 @@ namespace gala
 			void run();
 
 		private:
-			void loadModels();
+			void loadGameObjects();
 			void createPipelineLayout();
 			void createPipeline();
 			void createCommandBuffers();
@@ -35,6 +35,7 @@ namespace gala
 			void drawFrame();
 			void recreateSwapChain();
 			void recordCommandBuffer(int imageIndex);
+			void renderGameObjects(VkCommandBuffer commandBuffer);
 
 			void sierpinski(
 				std::vector<GalaModel::Vertex>& vertices,
@@ -49,6 +50,7 @@ namespace gala
 			std::unique_ptr<GalaPipeline> galaPipeline;
 			VkPipelineLayout pipelineLayout;
 			std::vector<VkCommandBuffer> commandBuffers;
-			std::unique_ptr<GalaModel> galaModel;
+			//std::unique_ptr<GalaModel> galaModel;
+			std::vector<GalaGameObject> gameObjects;
 	};
 }

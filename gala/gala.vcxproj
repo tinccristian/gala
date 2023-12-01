@@ -254,6 +254,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="first_app.h" />
+    <ClInclude Include="gala_game_object.h" />
     <ClInclude Include="gala_model.h" />
     <ClInclude Include="gala_pipeline.h" />
     <ClInclude Include="gala_window.h" />
