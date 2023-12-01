@@ -43,7 +43,7 @@ namespace gala
 				glm::vec2 right,
 				glm::vec2 top);
 
-			GalaWindow galaWindow{ WIDTH,HEIGHT,"Hello Vulkan!" };
+			GalaWindow galaWindow{ WIDTH,HEIGHT,"gala" };
 			GalaDevice galaDevice{ galaWindow };
 			std::unique_ptr<GalaSwapChain> galaSwapChain;
 			std::unique_ptr<GalaPipeline> galaPipeline;
