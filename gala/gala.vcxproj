@@ -122,6 +122,9 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -159,6 +162,9 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -193,6 +199,9 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -230,6 +239,9 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="first_app.cpp" />

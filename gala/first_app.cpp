@@ -26,6 +26,7 @@ namespace gala
 			glfwPollEvents();
 			drawFrame();
 		}
+		vkDeviceWaitIdle(galaDevice.device());
 	}
 
 	void FirstApp::createPipelineLayout()

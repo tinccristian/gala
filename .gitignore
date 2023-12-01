@@ -1,0 +1,9 @@
+
+*.opendb
+*.db-wal
+*.db-shm
+*.db
+bin/*
+gala/bin/*
+.vs/*
+*.db
