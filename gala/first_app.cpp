@@ -11,7 +11,7 @@ namespace gala
 	{
 		loadModels();
 		createPipelineLayout();
-		createPipeline();
+		recreateSwapChain();
 		createCommandBuffers();
 	}
 
@@ -77,14 +77,40 @@ namespace gala
 		}
 	}
 
+
+	void FirstApp::recreateSwapChain()
+	{
+		auto extent = galaWindow.getExtent();
+		while (extent.width == 0 || extent.height == 0) {
+			extent = galaWindow.getExtent();
+			glfwWaitEvents();
+		}
+
+		vkDeviceWaitIdle(galaDevice.device());
+
+		if (galaSwapChain == nullptr) {
+			galaSwapChain = std::make_unique<GalaSwapChain>(galaDevice, extent);
+		}
+		else {
+			galaSwapChain = std::make_unique<GalaSwapChain>(galaDevice, extent, std::move(galaSwapChain));
+			if (galaSwapChain->imageCount() != commandBuffers.size()) {
+				freeCommandBuffers();
+				createCommandBuffers();
+			}
+		}
+
+		// if render pass compatible do nothing else
+		createPipeline();
+	}
+
 	void FirstApp::createPipeline()
 	{
+		assert(galaSwapChain != nullptr && "Cannot create pipeline before swap chain");
+		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
+
 		PipelineConfigInfo pipelineConfig{};
-		GalaPipeline::defaultPipelineConfigInfo(
-			pipelineConfig,
-			galaSwapChain.width(),
-			galaSwapChain.height());
-		pipelineConfig.renderPass = galaSwapChain.getRenderPass();
+		GalaPipeline::defaultPipelineConfigInfo(pipelineConfig);
+		pipelineConfig.renderPass = galaSwapChain->getRenderPass();
 		pipelineConfig.pipelineLayout = pipelineLayout;
 		galaPipeline = std::make_unique<GalaPipeline>(
 			galaDevice,
@@ -93,10 +119,19 @@ namespace gala
 			pipelineConfig);
 	}
 
+	void FirstApp::freeCommandBuffers()
+	{
+		vkFreeCommandBuffers(
+			galaDevice.device(), 
+			galaDevice.getCommandPool(),
+			static_cast<uint32_t>(commandBuffers.size()),
+			commandBuffers.data());
+		commandBuffers.clear();
+	}
 
 	void FirstApp::createCommandBuffers()
 	{
-		commandBuffers.resize(galaSwapChain.imageCount());
+		commandBuffers.resize(galaSwapChain->imageCount());
 
 		VkCommandBufferAllocateInfo allocInfo{};
 		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -104,58 +139,86 @@ namespace gala
 		allocInfo.commandPool = galaDevice.getCommandPool();
 		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
+
 		if (vkAllocateCommandBuffers(galaDevice.device(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to allocate command buffers!");
 		}
-		for (int i = 0; i < commandBuffers.size(); i++)
+
+	}
+
+	void FirstApp::recordCommandBuffer(int imageIndex)
+	{
+		VkCommandBufferBeginInfo beginInfo{};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+
+		if (vkBeginCommandBuffer(commandBuffers[imageIndex], &beginInfo) != VK_SUCCESS)
 		{
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			throw std::runtime_error("failed to begin recording command buffers!");
+		}
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to begin recording command buffers!");
-			}
+		VkRenderPassBeginInfo renderPassInfo{};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
+		renderPassInfo.renderPass = galaSwapChain->getRenderPass();
+		renderPassInfo.framebuffer = galaSwapChain->getFrameBuffer(imageIndex);
 
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = galaSwapChain.getRenderPass();
-			renderPassInfo.framebuffer = galaSwapChain.getFrameBuffer(i);
+		renderPassInfo.renderArea.offset = { 0,0 };
+		renderPassInfo.renderArea.extent = galaSwapChain->getSwapChainExtent();
 
-			renderPassInfo.renderArea.offset = { 0,0 };
-			renderPassInfo.renderArea.extent = galaSwapChain.getSwapChainExtent();
+		std::array<VkClearValue, 2> clearValues{};
+		clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
+		clearValues[1].depthStencil = { 1.0f, 0 };
+		renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
+		renderPassInfo.pClearValues = clearValues.data();
 
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
-			clearValues[1].depthStencil = {1.0f, 0};
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
+		vkCmdBeginRenderPass(commandBuffers[imageIndex], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
+		VkViewport viewport{};
+		viewport.x = 0.0f;
+		viewport.y = 0.0f;
+		viewport.width = static_cast<float>(galaSwapChain->getSwapChainExtent().width);
+		viewport.height = static_cast<float>(galaSwapChain->getSwapChainExtent().height);
+		viewport.minDepth = 0.0f;
+		viewport.maxDepth = 1.0f;
+		VkRect2D scissor{ {0, 0}, galaSwapChain->getSwapChainExtent() };
+		vkCmdSetViewport(commandBuffers[imageIndex], 0, 1, &viewport);
+		vkCmdSetScissor(commandBuffers[imageIndex], 0, 1, &scissor);
 
-			galaPipeline->bind(commandBuffers[i]);
-			galaModel->bind(commandBuffers[i]);
-			galaModel->draw(commandBuffers[i]);
+		galaPipeline->bind(commandBuffers[imageIndex]);
+		galaModel->bind(commandBuffers[imageIndex]);
+		galaModel->draw(commandBuffers[imageIndex]);
 
-			vkCmdEndRenderPass(commandBuffers[i]);
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to record command buffer!");
-			}
+		vkCmdEndRenderPass(commandBuffers[imageIndex]);
+		if (vkEndCommandBuffer(commandBuffers[imageIndex]) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to record command buffer!");
 		}
 	}
+
 	void FirstApp::drawFrame()
 	{
 		uint32_t imageIndex;
-		auto result = galaSwapChain.acquireNextImage(&imageIndex);
+		auto result = galaSwapChain->acquireNextImage(&imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR)
+		{
+			recreateSwapChain();
+			return;
+		}
 
 		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
 		{
 			throw std::runtime_error("failed to acquire swap chain image!");
 		}
 
-		result = galaSwapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+		recordCommandBuffer(imageIndex);
+		result = galaSwapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+
+		if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR || galaWindow.wasWindowResized()) 
+		{
+			galaWindow.resetWindowResizedFlag();
+			return;
+		}
 		if(result!= VK_SUCCESS)
 		{
 			throw std::runtime_error("failed to present swap chain image!");

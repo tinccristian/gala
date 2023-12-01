@@ -31,7 +31,11 @@ namespace gala
 			void createPipelineLayout();
 			void createPipeline();
 			void createCommandBuffers();
+			void freeCommandBuffers();
 			void drawFrame();
+			void recreateSwapChain();
+			void recordCommandBuffer(int imageIndex);
+
 			void sierpinski(
 				std::vector<GalaModel::Vertex>& vertices,
 				int depth,
@@ -41,7 +45,7 @@ namespace gala
 
 			GalaWindow galaWindow{ WIDTH,HEIGHT,"Hello Vulkan!" };
 			GalaDevice galaDevice{ galaWindow };
-			GalaSwapChain galaSwapChain{ galaDevice, galaWindow.getExtent()};
+			std::unique_ptr<GalaSwapChain> galaSwapChain;
 			std::unique_ptr<GalaPipeline> galaPipeline;
 			VkPipelineLayout pipelineLayout;
 			std::vector<VkCommandBuffer> commandBuffers;

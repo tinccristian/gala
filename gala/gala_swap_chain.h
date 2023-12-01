@@ -6,6 +6,7 @@
 #include <vulkan/vulkan.h>
 
 // std lib headers
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -16,6 +17,7 @@ class GalaSwapChain {
   static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
   GalaSwapChain(GalaDevice &deviceRef, VkExtent2D windowExtent);
+  GalaSwapChain(GalaDevice &deviceRef, VkExtent2D windowExtent,std::shared_ptr<GalaSwapChain> previous);
   ~GalaSwapChain();
 
   GalaSwapChain(const GalaSwapChain &) = delete;
@@ -39,12 +41,13 @@ class GalaSwapChain {
   VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
  private:
-  void createSwapChain();
-  void createImageViews();
-  void createDepthResources();
-  void createRenderPass();
-  void createFramebuffers();
-  void createSyncObjects();
+    void init();
+    void createSwapChain();
+    void createImageViews();
+    void createDepthResources();
+    void createRenderPass();
+    void createFramebuffers();
+    void createSyncObjects();
 
   // Helper functions
   VkSurfaceFormatKHR chooseSwapSurfaceFormat(
@@ -68,8 +71,11 @@ class GalaSwapChain {
   GalaDevice &device;
   VkExtent2D windowExtent;
 
+  //Swapchain
   VkSwapchainKHR swapChain;
+  std::shared_ptr<GalaSwapChain> oldSwapChain;
 
+  //Rendering
   std::vector<VkSemaphore> imageAvailableSemaphores;
   std::vector<VkSemaphore> renderFinishedSemaphores;
   std::vector<VkFence> inFlightFences;

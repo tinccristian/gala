@@ -13,43 +13,55 @@ namespace gala {
 
 GalaSwapChain::GalaSwapChain(GalaDevice &deviceRef, VkExtent2D extent)
     : device{deviceRef}, windowExtent{extent} {
-  createSwapChain();
-  createImageViews();
-  createRenderPass();
-  createDepthResources();
-  createFramebuffers();
-  createSyncObjects();
+    init();
+}
+GalaSwapChain::GalaSwapChain(GalaDevice& deviceRef, VkExtent2D extent, std::shared_ptr <GalaSwapChain> previous)
+    : device{ deviceRef }, windowExtent{ extent }, oldSwapChain{ previous } {
+    init();
+
+    //clean up old swap chain since it's no longer needed
+    oldSwapChain = nullptr;
+}
+
+void GalaSwapChain::init() {
+    createSwapChain();
+    createImageViews();
+    createRenderPass();
+    createDepthResources();
+    createFramebuffers();
+    createSyncObjects();
+
 }
 
 GalaSwapChain::~GalaSwapChain() {
-  for (auto imageView : swapChainImageViews) {
+    for (auto imageView : swapChainImageViews) {
     vkDestroyImageView(device.device(), imageView, nullptr);
-  }
-  swapChainImageViews.clear();
+    }
+    swapChainImageViews.clear();
 
-  if (swapChain != nullptr) {
+    if (swapChain != nullptr) {
     vkDestroySwapchainKHR(device.device(), swapChain, nullptr);
     swapChain = nullptr;
-  }
+    }
 
-  for (int i = 0; i < depthImages.size(); i++) {
+    for (int i = 0; i < depthImages.size(); i++) {
     vkDestroyImageView(device.device(), depthImageViews[i], nullptr);
     vkDestroyImage(device.device(), depthImages[i], nullptr);
     vkFreeMemory(device.device(), depthImageMemorys[i], nullptr);
-  }
+    }
 
-  for (auto framebuffer : swapChainFramebuffers) {
+    for (auto framebuffer : swapChainFramebuffers) {
     vkDestroyFramebuffer(device.device(), framebuffer, nullptr);
-  }
+    }
 
-  vkDestroyRenderPass(device.device(), renderPass, nullptr);
+    vkDestroyRenderPass(device.device(), renderPass, nullptr);
 
-  // cleanup synchronization objects
-  for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+    // cleanup synchronization objects
+    for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
     vkDestroySemaphore(device.device(), renderFinishedSemaphores[i], nullptr);
     vkDestroySemaphore(device.device(), imageAvailableSemaphores[i], nullptr);
     vkDestroyFence(device.device(), inFlightFences[i], nullptr);
-  }
+    }
 }
 
 VkResult GalaSwapChain::acquireNextImage(uint32_t *imageIndex) {
@@ -162,7 +174,7 @@ void GalaSwapChain::createSwapChain() {
   createInfo.presentMode = presentMode;
   createInfo.clipped = VK_TRUE;
 
-  createInfo.oldSwapchain = VK_NULL_HANDLE;
+  createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE:oldSwapChain->swapChain;
 
   if (vkCreateSwapchainKHR(device.device(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
     throw std::runtime_error("failed to create swap chain!");
@@ -373,12 +385,12 @@ VkSurfaceFormatKHR GalaSwapChain::chooseSwapSurfaceFormat(
 
 VkPresentModeKHR GalaSwapChain::chooseSwapPresentMode(
     const std::vector<VkPresentModeKHR> &availablePresentModes) {
-  for (const auto &availablePresentMode : availablePresentModes) {
-    if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-      std::cout << "Present mode: Mailbox" << std::endl;
-      return availablePresentMode;
-    }
-  }
+  //for (const auto &availablePresentMode : availablePresentModes) {
+  //  if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+  //    std::cout << "Present mode: Mailbox" << std::endl;
+  //    return availablePresentMode;
+  //  }
+  //}
 
    //for (const auto &availablePresentMode : availablePresentModes) {
    //  if (availablePresentMode == VK_PRESENT_MODE_IMMEDIATE_KHR) {
