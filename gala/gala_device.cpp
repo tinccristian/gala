@@ -109,22 +109,25 @@ void GalaDevice::createInstance() {
 }
 
 void GalaDevice::pickPhysicalDevice() {
-  uint32_t deviceCount = 0;
-  vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
-  if (deviceCount == 0) {
-    throw std::runtime_error("failed to find GPUs with Vulkan support!");
-  }
-  std::cout << "Device count: " << deviceCount << std::endl;
-  std::vector<VkPhysicalDevice> devices(deviceCount);
-  vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
-
-  for (const auto &device : devices) {
-    if (isDeviceSuitable(device)) {
-      physicalDevice = device;
-      break;
+    uint32_t deviceCount = 0;
+    vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
+    if (deviceCount == 0) {
+        throw std::runtime_error("failed to find GPUs with Vulkan support!");
     }
-  }
+    std::cout << "Device count: " << deviceCount << std::endl;
+    std::vector<VkPhysicalDevice> devices(deviceCount);
+    vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+    //for (const auto& device : devices) {
+    //    if (isDeviceSuitable(device)) {
+    //        physicalDevice = device;
+    //        break;
+    //    }
+    //}
+
+    if (isDeviceSuitable(devices[1])) {     //Always pick intel
+        physicalDevice = devices[1];
+    }
   if (physicalDevice == VK_NULL_HANDLE) {
     throw std::runtime_error("failed to find a suitable GPU!");
   }
