@@ -12,79 +12,73 @@
 #include <stdexcept>
 
 namespace gala {
+	struct SimplePushConstantData {
+		glm::mat4 transform{ 1.f };
+		alignas(16) glm::vec3 color;
+	};
 
-    struct SimplePushConstantData {
-        glm::mat4 transform{1.f};
-        alignas(16) glm::vec3 color;
-    };
+	SimpleRenderSystem::SimpleRenderSystem(GalaDevice& device, VkRenderPass renderPass)
+		: galaDevice{ device } {
+		createPipelineLayout();
+		createPipeline(renderPass);
+	}
 
-    SimpleRenderSystem::SimpleRenderSystem(GalaDevice& device, VkRenderPass renderPass)
-        : galaDevice{device} {
-        createPipelineLayout();
-        createPipeline(renderPass);
-    }
+	SimpleRenderSystem::~SimpleRenderSystem() {
+		vkDestroyPipelineLayout(galaDevice.device(), pipelineLayout, nullptr);
+	}
 
-    SimpleRenderSystem::~SimpleRenderSystem() {
-        vkDestroyPipelineLayout(galaDevice.device(), pipelineLayout, nullptr);
-    }
+	void SimpleRenderSystem::createPipelineLayout() {
+		VkPushConstantRange pushConstantRange{};
+		pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+		pushConstantRange.offset = 0;
+		pushConstantRange.size = sizeof(SimplePushConstantData);
 
-    void SimpleRenderSystem::createPipelineLayout() {
-        VkPushConstantRange pushConstantRange{};
-        pushConstantRange.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
-        pushConstantRange.offset = 0;
-        pushConstantRange.size = sizeof(SimplePushConstantData);
+		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
+		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
+		pipelineLayoutInfo.setLayoutCount = 0;
+		pipelineLayoutInfo.pSetLayouts = nullptr;
+		pipelineLayoutInfo.pushConstantRangeCount = 1;
+		pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
+		if (vkCreatePipelineLayout(galaDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
+			VK_SUCCESS) {
+			throw std::runtime_error("failed to create pipeline layout!");
+		}
+	}
 
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 0;
-        pipelineLayoutInfo.pSetLayouts = nullptr;
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &pushConstantRange;
-        if (vkCreatePipelineLayout(galaDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
-            VK_SUCCESS) {
-        throw std::runtime_error("failed to create pipeline layout!");
-        }
-    }
+	void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
+		assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
 
-    void SimpleRenderSystem::createPipeline(VkRenderPass renderPass) {
-        assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
+		PipelineConfigInfo pipelineConfig{};
+		GalaPipeline::defaultPipelineConfigInfo(pipelineConfig);
+		pipelineConfig.renderPass = renderPass;
+		pipelineConfig.pipelineLayout = pipelineLayout;
+		galaPipeline = std::make_unique<GalaPipeline>(
+			galaDevice,
+			"shaders/simple_shader.vert.spv",
+			"shaders/simple_shader.frag.spv",
+			pipelineConfig);
+	}
 
-        PipelineConfigInfo pipelineConfig{};
-        GalaPipeline::defaultPipelineConfigInfo(pipelineConfig);
-        pipelineConfig.renderPass = renderPass;
-        pipelineConfig.pipelineLayout = pipelineLayout;
-        galaPipeline = std::make_unique<GalaPipeline>(
-            galaDevice,
-            "shaders/simple_shader.vert.spv",
-            "shaders/simple_shader.frag.spv",
-            pipelineConfig);
-    }
+	void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GalaGameObject>& gameObjects, const GalaCamera& camera)
+	{
+		galaPipeline->bind(commandBuffer);
 
-    void SimpleRenderSystem::renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GalaGameObject>& gameObjects, const GalaCamera& camera)
-    {
+		auto projectionView = camera.getProjection() * camera.getView();
 
-        galaPipeline->bind(commandBuffer);
+		for (auto& obj : gameObjects) {
+			SimplePushConstantData push{};
+			push.color = obj.color;
+			push.transform = projectionView * obj.transform.mat4();
 
-        auto projectionView = camera.getProjection() * camera.getView();
-
-        for (auto& obj : gameObjects) {
-            obj.transform.rotation.y = glm::mod(obj.transform.rotation.y + 0.01f, glm::two_pi<float>());
-            obj.transform.rotation.x = glm::mod(obj.transform.rotation.x + 0.005f, glm::two_pi<float>());
-
-            SimplePushConstantData push{};
-            push.color = obj.color;
-            push.transform = projectionView * obj.transform.mat4();
-
-            vkCmdPushConstants(
-                commandBuffer,
-                pipelineLayout,
-                VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
-                0,
-                sizeof(SimplePushConstantData),
-                &push);
-            obj.model->bind(commandBuffer);
-            obj.model->draw(commandBuffer);
-        }
-    }
-
+			vkCmdPushConstants(
+				commandBuffer,
+				pipelineLayout,
+				VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT,
+				0,
+				sizeof(SimplePushConstantData),
+				&push);
+			obj.model->bind(commandBuffer);
+			obj.model->draw(commandBuffer);
+		}
+	}
 }

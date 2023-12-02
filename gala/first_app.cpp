@@ -1,5 +1,6 @@
 #include "first_app.h"
 
+#include "keyboard_movement_controller.h"
 #include "gala_camera.h"
 #include "simple_render_system.h"
 
@@ -11,23 +12,42 @@
 
 // std
 #include <array>
+#include <chrono>
 #include <cassert>
 #include <stdexcept>
 
+
 namespace gala {
+
+    float MAX_FRAME_RATE = 1000;
 
     FirstApp::FirstApp() { loadGameObjects(); }
 
     FirstApp::~FirstApp() {}
 
     void FirstApp::run() {
-      SimpleRenderSystem simpleRenderSystem{galaDevice, galaRenderer.getSwapChainRenderPass()};
-      GalaCamera camera{};
-      //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
-      camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+        SimpleRenderSystem simpleRenderSystem{galaDevice, galaRenderer.getSwapChainRenderPass()};
+        GalaCamera camera{};
+        //camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+        camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
-      while (!galaWindow.shouldClose()) {
+        auto viewerObject = GalaGameObject::createGameObject();
+        KeyboardMovementController cameraController{};
+
+        auto currentTime = std::chrono::high_resolution_clock::now();
+
+    while (!galaWindow.shouldClose()) {
+
         glfwPollEvents();
+
+        auto newTime = std::chrono::high_resolution_clock::now();
+        float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+        currentTime = newTime;
+
+        frameTime = glm::min(frameTime, MAX_FRAME_RATE);
+
+        cameraController.moveInPlaneXZ(galaWindow.getGLFWwindow(), frameTime, viewerObject);
+        camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
         float aspect = galaRenderer.getAspectRatio();
         //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
@@ -35,12 +55,12 @@ namespace gala {
         camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
         if (auto commandBuffer = galaRenderer.beginFrame()) {
-          galaRenderer.beginSwapChainRenderPass(commandBuffer);
-          simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects,camera);
-          galaRenderer.endSwapChainRenderPass(commandBuffer);
-          galaRenderer.endFrame();
+            galaRenderer.beginSwapChainRenderPass(commandBuffer);
+            simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects,camera);
+            galaRenderer.endSwapChainRenderPass(commandBuffer);
+            galaRenderer.endFrame();
         }
-      }
+    }
 
       vkDeviceWaitIdle(galaDevice.device());
     }
