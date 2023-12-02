@@ -118,6 +118,7 @@ void GalaDevice::pickPhysicalDevice() {
   std::vector<VkPhysicalDevice> devices(deviceCount);
   vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
+  //physicalDevice = devices[1];
   for (const auto &device : devices) {
     if (isDeviceSuitable(device)) {
       physicalDevice = device;
