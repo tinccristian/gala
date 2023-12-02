@@ -1,5 +1,6 @@
 #include "first_app.h"
 
+#include "gala_camera.h"
 #include "simple_render_system.h"
 
 // libs
@@ -21,13 +22,19 @@ namespace gala {
 
     void FirstApp::run() {
       SimpleRenderSystem simpleRenderSystem{galaDevice, galaRenderer.getSwapChainRenderPass()};
+      GalaCamera camera{};
 
       while (!galaWindow.shouldClose()) {
         glfwPollEvents();
 
+        float aspect = galaRenderer.getAspectRatio();
+        //camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
+
+        camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
+
         if (auto commandBuffer = galaRenderer.beginFrame()) {
           galaRenderer.beginSwapChainRenderPass(commandBuffer);
-          simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects);
+          simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects,camera);
           galaRenderer.endSwapChainRenderPass(commandBuffer);
           galaRenderer.endFrame();
         }
@@ -101,7 +108,7 @@ std::unique_ptr<GalaModel> createCubeModel(GalaDevice& device, glm::vec3 offset)
 
         auto cube = GalaGameObject::createGameObject();
         cube.model = galaModel;
-        cube.transform.translation = { .0f,.0f,.5f };
+        cube.transform.translation = { .0f,.0f,2.5f };
         cube.transform.scale = { .5f,.5f,.5f };
         gameObjects.push_back(std::move(cube));
 

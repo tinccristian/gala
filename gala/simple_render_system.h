@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gala_camera.h"
 #include "gala_pipeline.h"
 #include "gala_device.h"
 #include "gala_game_object.h"
@@ -20,7 +21,7 @@ namespace gala
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GalaGameObject>& gameObjects);
+		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GalaGameObject>& gameObjects, const GalaCamera &camera);
 
 	private:
 		void createPipelineLayout();

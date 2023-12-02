@@ -10,21 +10,24 @@
 #include <vector>
 
 namespace gala {
-class GalaRenderer {
- public:
-  GalaRenderer(GalaWindow &window, GalaDevice &device);
-  ~GalaRenderer();
+    class GalaRenderer {
 
-  GalaRenderer(const GalaRenderer &) = delete;
-  GalaRenderer &operator=(const GalaRenderer &) = delete;
+    public:
+        GalaRenderer(GalaWindow& window, GalaDevice& device);
+        ~GalaRenderer();
 
-  VkRenderPass getSwapChainRenderPass() const { return galaSwapChain->getRenderPass(); }
-  bool isFrameInProgress() const { return isFrameStarted; }
+        GalaRenderer(const GalaRenderer&) = delete;
+        GalaRenderer& operator=(const GalaRenderer&) = delete;
 
-  VkCommandBuffer getCurrentCommandBuffer() const {
-    assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
-    return commandBuffers[currentFrameIndex];
-  }
+        VkRenderPass getSwapChainRenderPass() const { return galaSwapChain->getRenderPass(); }
+        float getAspectRatio() const {return galaSwapChain->extentAspectRatio();}
+        bool isFrameInProgress() const { return isFrameStarted; 
+        }
+
+    VkCommandBuffer getCurrentCommandBuffer() const {
+        assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
+        return commandBuffers[currentFrameIndex];
+        }
 
   int getFrameIndex() const {
     assert(isFrameStarted && "Cannot get frame index when frame not in progress");
