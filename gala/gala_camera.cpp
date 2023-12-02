@@ -5,7 +5,6 @@
 #include<limits>
 
 namespace gala {
-
 	void GalaCamera::setOrthographicProjection(
 		float left, float right, float top, float bottom, float near, float far) {
 		projectionMatrix = glm::mat4{ 1.0f };

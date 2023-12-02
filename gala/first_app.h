@@ -10,26 +10,26 @@
 #include <vector>
 
 namespace gala {
-class FirstApp {
- public:
-  static constexpr int WIDTH = 800;
-  static constexpr int HEIGHT = 600;
+	class FirstApp {
+	public:
+		static constexpr int WIDTH = 800;
+		static constexpr int HEIGHT = 600;
 
-  FirstApp();
-  ~FirstApp();
+		FirstApp();
+		~FirstApp();
 
-  FirstApp(const FirstApp &) = delete;
-  FirstApp &operator=(const FirstApp &) = delete;
+		FirstApp(const FirstApp&) = delete;
+		FirstApp& operator=(const FirstApp&) = delete;
 
-  void run();
+		void run();
 
- private:
-  void loadGameObjects();
+	private:
+		void loadGameObjects();
 
-  GalaWindow galaWindow{ WIDTH, HEIGHT, "gala" };
-  GalaDevice galaDevice{galaWindow};
-  GalaRenderer galaRenderer{galaWindow, galaDevice};
+		GalaWindow galaWindow{ WIDTH, HEIGHT, "gala" };
+		GalaDevice galaDevice{ galaWindow };
+		GalaRenderer galaRenderer{ galaWindow, galaDevice };
 
-  std::vector<GalaGameObject> gameObjects;
-};
+		std::vector<GalaGameObject> gameObjects;
+	};
 }

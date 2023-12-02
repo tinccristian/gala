@@ -120,10 +120,10 @@ namespace gala {
 		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
 		for (const auto& device : devices) {
-		    if (isDeviceSuitable(device)) {
-		        physicalDevice = device;
-		        break;
-		    }
+			if (isDeviceSuitable(device)) {
+				physicalDevice = device;
+				break;
+			}
 		}
 
 		//if (isDeviceSuitable(devices[1])) {     //Always pick intel

@@ -10,47 +10,47 @@
 #include <vector>
 
 namespace gala {
-    class GalaRenderer {
+	class GalaRenderer {
+	public:
+		GalaRenderer(GalaWindow& window, GalaDevice& device);
+		~GalaRenderer();
 
-    public:
-        GalaRenderer(GalaWindow& window, GalaDevice& device);
-        ~GalaRenderer();
+		GalaRenderer(const GalaRenderer&) = delete;
+		GalaRenderer& operator=(const GalaRenderer&) = delete;
 
-        GalaRenderer(const GalaRenderer&) = delete;
-        GalaRenderer& operator=(const GalaRenderer&) = delete;
+		VkRenderPass getSwapChainRenderPass() const { return galaSwapChain->getRenderPass(); }
+		float getAspectRatio() const { return galaSwapChain->extentAspectRatio(); }
+		bool isFrameInProgress() const {
+			return isFrameStarted;
+		}
 
-        VkRenderPass getSwapChainRenderPass() const { return galaSwapChain->getRenderPass(); }
-        float getAspectRatio() const {return galaSwapChain->extentAspectRatio();}
-        bool isFrameInProgress() const { return isFrameStarted; 
-        }
+		VkCommandBuffer getCurrentCommandBuffer() const {
+			assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
+			return commandBuffers[currentFrameIndex];
+		}
 
-    VkCommandBuffer getCurrentCommandBuffer() const {
-        assert(isFrameStarted && "Cannot get command buffer when frame not in progress");
-        return commandBuffers[currentFrameIndex];
-        }
+		int getFrameIndex() const {
+			assert(isFrameStarted && "Cannot get frame index when frame not in progress");
+			return currentFrameIndex;
+		}
 
-  int getFrameIndex() const {
-    assert(isFrameStarted && "Cannot get frame index when frame not in progress");
-    return currentFrameIndex;
-  }
+		VkCommandBuffer beginFrame();
+		void endFrame();
+		void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
+		void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
 
-  VkCommandBuffer beginFrame();
-  void endFrame();
-  void beginSwapChainRenderPass(VkCommandBuffer commandBuffer);
-  void endSwapChainRenderPass(VkCommandBuffer commandBuffer);
+	private:
+		void createCommandBuffers();
+		void freeCommandBuffers();
+		void recreateSwapChain();
 
- private:
-  void createCommandBuffers();
-  void freeCommandBuffers();
-  void recreateSwapChain();
+		GalaWindow& galaWindow;
+		GalaDevice& galaDevice;
+		std::unique_ptr<GalaSwapChain> galaSwapChain;
+		std::vector<VkCommandBuffer> commandBuffers;
 
-  GalaWindow &galaWindow;
-  GalaDevice &galaDevice;
-  std::unique_ptr<GalaSwapChain> galaSwapChain;
-  std::vector<VkCommandBuffer> commandBuffers;
-
-  uint32_t currentImageIndex;
-  int currentFrameIndex{0};
-  bool isFrameStarted{false};
-};
+		uint32_t currentImageIndex;
+		int currentFrameIndex{ 0 };
+		bool isFrameStarted{ false };
+	};
 }

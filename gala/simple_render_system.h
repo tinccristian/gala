@@ -21,7 +21,7 @@ namespace gala
 		SimpleRenderSystem(const SimpleRenderSystem&) = delete;
 		SimpleRenderSystem& operator=(const SimpleRenderSystem&) = delete;
 
-		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GalaGameObject>& gameObjects, const GalaCamera &camera);
+		void renderGameObjects(VkCommandBuffer commandBuffer, std::vector<GalaGameObject>& gameObjects, const GalaCamera& camera);
 
 	private:
 		void createPipelineLayout();
