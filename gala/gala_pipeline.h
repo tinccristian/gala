@@ -10,7 +10,7 @@ namespace gala
 {
 	struct PipelineConfigInfo {
 		PipelineConfigInfo(const PipelineConfigInfo&) = delete;
-		PipelineConfigInfo() = default;
+		//PipelineConfigInfo() = default;
 		PipelineConfigInfo& operator=(const PipelineConfigInfo&) = delete;
 
 		VkPipelineViewportStateCreateInfo viewportInfo;
@@ -31,7 +31,7 @@ namespace gala
 	{
 	public:
 		GalaPipeline(
-			GalaDevice &device,
+			GalaDevice& device,
 			const std::string& vertFilePath,
 			const std::string& fragFilePath,
 			const PipelineConfigInfo& configInfo);

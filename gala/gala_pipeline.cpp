@@ -64,9 +64,9 @@ namespace gala
 			 configInfo.renderPass != VK_NULL_HANDLE &&
 			 "Cannot create graphics pipeline:: no renderPass provided in configInfo");
 
-
 		 auto vertCode = readFile(vertFilePath);
 		 auto fragCode = readFile(fragFilePath);
+
 		 createShaderModule(vertCode, &vertShaderModule);
 		 createShaderModule(fragCode, &fragShaderModule);
 

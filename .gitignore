@@ -6,3 +6,9 @@
 .bin/*
 .gala/bin/*
 .vs/*
+*.suo
+*.user
+_ReSharper.*
+bin
+obj
+packages

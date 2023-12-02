@@ -247,19 +247,23 @@
     <ClCompile Include="first_app.cpp" />
     <ClCompile Include="gala_model.cpp" />
     <ClCompile Include="gala_pipeline.cpp" />
+    <ClCompile Include="gala_renderer.cpp" />
     <ClCompile Include="gala_window.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="gala_device.cpp" />
     <ClCompile Include="gala_swap_chain.cpp" />
+    <ClCompile Include="simple_render_system.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="first_app.h" />
     <ClInclude Include="gala_game_object.h" />
     <ClInclude Include="gala_model.h" />
     <ClInclude Include="gala_pipeline.h" />
+    <ClInclude Include="gala_renderer.h" />
     <ClInclude Include="gala_window.h" />
     <ClInclude Include="gala_device.h" />
     <ClInclude Include="gala_swap_chain.h" />
+    <ClInclude Include="simple_render_system.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

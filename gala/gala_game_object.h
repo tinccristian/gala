@@ -5,14 +5,13 @@
 //std
 #include <memory>
 
-namespace gala{
-
+namespace gala {
 	struct Transform2dComponent {
 		glm::vec2 translation{};//position offset
 		glm::vec2 scale{ 1.f,1.f };
 		float rotation;
 
-		glm::mat2 mat2(){
+		glm::mat2 mat2() {
 			const float s = glm::sin(rotation);
 			const float c = glm::cos(rotation);
 			glm::mat2 rotMatrix{ {c,s}, {-s,c} };
@@ -22,10 +21,10 @@ namespace gala{
 		}
 	};
 
-	class GalaGameObject{
+	class GalaGameObject {
 	public:
 		using id_t = unsigned int;
-		static GalaGameObject createGameObject(){
+		static GalaGameObject createGameObject() {
 			static id_t currentId = 0;
 			return GalaGameObject{ currentId++ };
 		}
@@ -42,7 +41,7 @@ namespace gala{
 		Transform2dComponent transform2d{};
 
 	private:
-		GalaGameObject(id_t objId) : id{objId} {}
+		GalaGameObject(id_t objId) : id{ objId } {}
 
 		id_t id;
 	};

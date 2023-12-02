@@ -31,15 +31,15 @@ namespace gala
 		vkUnmapMemory(galaDevice.device(), vertexBufferMemory);
 	}
 
+	void GalaModel::draw(VkCommandBuffer commandBuffer){
+		vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
+	}
+
 	void GalaModel::bind(VkCommandBuffer commandBuffer)
 	{
 		VkBuffer buffers[] = { vertexBuffer };
 		VkDeviceSize offsets[] = { 0 };
 		vkCmdBindVertexBuffers(commandBuffer, 0, 1, buffers, offsets);
-	}
-
-	void GalaModel::draw(VkCommandBuffer commandBuffer){
-		vkCmdDraw(commandBuffer, vertexCount, 1, 0, 0);
 	}
 
 	std::vector<VkVertexInputBindingDescription> GalaModel::Vertex::getBindingDescriptions(){
@@ -53,7 +53,7 @@ namespace gala
 
 
 	std::vector<VkVertexInputAttributeDescription> GalaModel::Vertex::getAttributeDescriptions() {
-		std::vector< VkVertexInputAttributeDescription> attributeDescriptions(2);
+		std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
 		attributeDescriptions[0].binding = 0;
 		attributeDescriptions[0].location = 0;
 		attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
