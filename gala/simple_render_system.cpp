@@ -14,7 +14,7 @@
 namespace gala {
 	struct SimplePushConstantData {
 		glm::mat4 transform{ 1.f };
-		alignas(16) glm::vec3 color;
+		glm::mat4 normalMatrix{ 1.f };
 	};
 
 	SimpleRenderSystem::SimpleRenderSystem(GalaDevice& device, VkRenderPass renderPass)
@@ -67,8 +67,9 @@ namespace gala {
 
 		for (auto& obj : gameObjects) {
 			SimplePushConstantData push{};
-			push.color = obj.color;
+			auto modelMatrix = obj.transform.mat4();
 			push.transform = projectionView * obj.transform.mat4();
+			push.normalMatrix = obj.transform.normalMatrix(); // glsl will auto convert m4 to m3
 
 			vkCmdPushConstants(
 				commandBuffer,

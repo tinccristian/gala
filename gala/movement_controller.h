@@ -3,8 +3,16 @@
 #include "gala_game_object.h"
 #include "gala_window.h"
 
+//libs
+#define GLFW_CROSSHAIR_CURSOR   0x00036003
+#define GLFW_HAND_CURSOR		0x00036004
+#define GLFW_HRESIZE_CURSOR		0x00036005
+#define GLFW_VRESIZE_CURSOR		0x00036006
+#define GLFW_ARROW_CURSOR		0x00036001
+#define GLFW_IBEAM_CURSOR		0x00036002
+
 namespace gala {
-	class KeyboardMovementController {
+	class MovementController {
 	public:
 		struct KeyMappings {
 			int moveLeft = GLFW_KEY_A;
@@ -21,8 +29,11 @@ namespace gala {
 
 		void moveInPlaneXZ(GLFWwindow* window, float dt, GalaGameObject& gameObject);
 
+		void handleMouseInput(GLFWwindow* window, double mouseX, double mouseY);
+
 		KeyMappings keys{};
 		float moveSpeed{ 3.f };
 		float lookSpeed{ 1.5f };
+		float mouseSensitivity{ 0.01f }; // Adjust sensitivity as needed
 	};
 }

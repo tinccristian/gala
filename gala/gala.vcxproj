@@ -249,6 +249,7 @@
   <ItemGroup>
     <ClCompile Include="first_app.cpp" />
     <ClCompile Include="gala_camera.cpp" />
+    <ClCompile Include="gala_game_object.cpp" />
     <ClCompile Include="gala_model.cpp" />
     <ClCompile Include="gala_pipeline.cpp" />
     <ClCompile Include="gala_renderer.cpp" />
@@ -257,7 +258,7 @@
     <ClCompile Include="gala_device.cpp" />
     <ClCompile Include="gala_swap_chain.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
-    <ClCompile Include="keyboard_movement_controller.cpp" />
+    <ClCompile Include="movement_controller.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\tiny_obj_loader\tiny_obj_loader.h" />
@@ -271,7 +272,7 @@
     <ClInclude Include="gala_window.h" />
     <ClInclude Include="gala_device.h" />
     <ClInclude Include="gala_swap_chain.h" />
-    <ClInclude Include="keyboard_movement_controller.h" />
+    <ClInclude Include="movement_controller.h" />
     <ClInclude Include="simple_render_system.h" />
   </ItemGroup>
   <ItemGroup>

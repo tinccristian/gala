@@ -1,6 +1,6 @@
 #include "first_app.h"
 
-#include "keyboard_movement_controller.h"
+#include "movement_controller.h"
 #include "gala_camera.h"
 #include "simple_render_system.h"
 
@@ -30,7 +30,7 @@ namespace gala {
 		camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
 
 		auto viewerObject = GalaGameObject::createGameObject();
-		KeyboardMovementController cameraController{};
+		MovementController cameraController{};
 
 		auto currentTime = std::chrono::high_resolution_clock::now();
 
@@ -63,12 +63,20 @@ namespace gala {
 	}
 
 	void FirstApp::loadGameObjects() {
-		std::shared_ptr<GalaModel> galaModel = GalaModel::createModelFromFile (galaDevice, "D:\\Projects\\gala\\gala\\models\\smooth_vase.obj");
+		std::shared_ptr<GalaModel> galaModel = GalaModel::createModelFromFile (galaDevice, "D:\\Projects\\gala\\gala\\models\\flat_vase.obj"); //check if obj is created
 
-		auto gameObject = GalaGameObject::createGameObject();
-		gameObject.model = galaModel;
-		gameObject.transform.translation = { .0f,.0f,2.5f };
-		gameObject.transform.scale = glm::vec3(3.f);
-		gameObjects.push_back(std::move(gameObject));
+		auto flatVase = GalaGameObject::createGameObject();
+		flatVase.model = galaModel;
+		flatVase.transform.translation = { -.5f,.5f,2.5f };
+		flatVase.transform.scale = glm::vec3(3.f, 1.5f, 3.f);
+		gameObjects.push_back(std::move(flatVase));
+
+		galaModel = GalaModel::createModelFromFile (galaDevice, "D:\\Projects\\gala\\gala\\models\\smooth_vase.obj"); //check if obj is created
+
+		auto smoothVase = GalaGameObject::createGameObject();
+		smoothVase.model = galaModel;
+		smoothVase.transform.translation = { .0f,.5f,2.5f };
+		smoothVase.transform.scale = glm::vec3(3.f, 1.5f, 3.f);
+		gameObjects.push_back(std::move(smoothVase));
 	}
 }

@@ -1,12 +1,46 @@
-#include "keyboard_movement_controller.h"
+#include "movement_controller.h"
 
 // std
 #include <limits>
 
 namespace gala {
-	void KeyboardMovementController::moveInPlaneXZ(
+	void MovementController::moveInPlaneXZ(
 		GLFWwindow* window, float dt, GalaGameObject& gameObject) {
 		glm::vec3 rotate{ 0 };
+
+		double mouseX, mouseY;
+		glfwGetCursorPos(window, &mouseX, &mouseY);
+
+		static double lastMouseX = mouseX;
+		static double lastMouseY = mouseY;
+
+		double deltaX = mouseX - lastMouseX;
+		double deltaY = mouseY - lastMouseY;
+
+		// Update last mouse coordinates
+		lastMouseX = mouseX;
+		lastMouseY = mouseY;
+
+		//if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+
+		//}
+
+		if (glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_RIGHT) == GLFW_PRESS) {
+			rotate.y += static_cast<float>(deltaX) * mouseSensitivity;
+			// Invert deltaY to change the mouse direction
+			rotate.x -= static_cast<float>(deltaY) * mouseSensitivity;
+			glfwSetCursor(window, glfwCreateStandardCursor(GLFW_HAND_CURSOR)); // Replace 'yourCustomCursor' with your cursor object
+		}
+		else {
+			// Set default cursor when not rotating
+			glfwSetCursor(window, nullptr);
+		}
+
+		if (glm::dot(rotate, rotate) > std::numeric_limits<float>::epsilon()) {
+			gameObject.transform.rotation += lookSpeed * dt * glm::normalize(rotate);
+		}
+
+
 		if (glfwGetKey(window, keys.lookRight) == GLFW_PRESS) rotate.y += 1.f;
 		if (glfwGetKey(window, keys.lookLeft) == GLFW_PRESS) rotate.y -= 1.f;
 		if (glfwGetKey(window, keys.lookUp) == GLFW_PRESS) rotate.x += 1.f;
