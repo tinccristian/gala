@@ -21,7 +21,12 @@ namespace gala {
 			static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
 		};
 
-		GalaModel(GalaDevice& device, const std::vector<Vertex>& vertices);
+		struct Builder {
+			std::vector<Vertex>   vertices{};
+			std::vector<uint32_t> indices{};
+		};
+
+		GalaModel(GalaDevice& device, const GalaModel::Builder &builder);
 		~GalaModel();
 
 		GalaModel(const GalaModel&) = delete;
@@ -31,11 +36,18 @@ namespace gala {
 		void draw(VkCommandBuffer commandBuffer);
 
 	private:
-		void createVertexBuffers(const std::vector<Vertex>& vertices);
+		void createVertexBuffers(const std::vector<Vertex> &vertices);
+		void createIndexBuffers(const std::vector<uint32_t> &indices);
 
 		GalaDevice& galaDevice;
+
 		VkBuffer vertexBuffer;
 		VkDeviceMemory vertexBufferMemory;
 		uint32_t vertexCount;
+
+		bool hasIndexBuffer=false;
+		VkBuffer indexBuffer;
+		VkDeviceMemory indexBufferMemory;
+		uint32_t indexCount;
 	};
 }

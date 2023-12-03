@@ -12,3 +12,7 @@ _ReSharper.*
 bin
 obj
 packages
+*.scor
+*.gbl
+*.incl
+*.t0000
