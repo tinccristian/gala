@@ -96,7 +96,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\gala\lib\tiny_obj_loader;D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
       <ModuleOutputFile>$(OutDir)</ModuleOutputFile>
@@ -122,6 +122,9 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <ClCompile>
@@ -131,7 +134,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\gala\lib\tiny_obj_loader;D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
       <ModuleOutputFile>$(OutDir)</ModuleOutputFile>
@@ -159,6 +162,9 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
@@ -166,7 +172,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\gala\lib\tiny_obj_loader;D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <ProgramDataBaseFileName>$(OutDir)</ProgramDataBaseFileName>
       <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
@@ -193,6 +199,12 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
+    <BuildLog>
+      <Path>$(IntDir)$(MSBuildProjectName).log</Path>
+    </BuildLog>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
@@ -202,7 +214,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <AdditionalIncludeDirectories>D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>D:\Projects\gala\lib\tiny_obj_loader;D:\Projects\gala\include\VULKAN;D:\Projects\gala\include\glm;D:\Projects\gala\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
       <AssemblerListingLocation>$(OutDir)</AssemblerListingLocation>
       <ModuleOutputFile>$(OutDir)</ModuleOutputFile>
@@ -230,21 +242,41 @@
     <ManifestResourceCompile>
       <ResourceOutputFileName>$(OutDir)$(TargetName)$(TargetExt).embed.manifest.res</ResourceOutputFileName>
     </ManifestResourceCompile>
+    <PreBuildEvent>
+      <Command>call "$(ProjectDir)compile.bat"</Command>
+    </PreBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="first_app.cpp" />
+    <ClCompile Include="gala_camera.cpp" />
+    <ClCompile Include="gala_game_object.cpp" />
+    <ClCompile Include="gala_model.cpp" />
     <ClCompile Include="gala_pipeline.cpp" />
+    <ClCompile Include="gala_renderer.cpp" />
     <ClCompile Include="gala_window.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="gala_device.cpp" />
     <ClCompile Include="gala_swap_chain.cpp" />
+    <ClCompile Include="simple_render_system.cpp" />
+    <ClCompile Include="movement_controller.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\lib\tiny_obj_loader\tiny_obj_loader.h" />
     <ClInclude Include="first_app.h" />
+    <ClInclude Include="gala_camera.h" />
+    <ClInclude Include="gala_game_object.h" />
+    <ClInclude Include="gala_model.h" />
     <ClInclude Include="gala_pipeline.h" />
+    <ClInclude Include="gala_renderer.h" />
+    <ClInclude Include="gala_utils.h" />
     <ClInclude Include="gala_window.h" />
     <ClInclude Include="gala_device.h" />
     <ClInclude Include="gala_swap_chain.h" />
+    <ClInclude Include="movement_controller.h" />
+    <ClInclude Include="simple_render_system.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="compile.bat" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

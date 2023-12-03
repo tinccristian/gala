@@ -8,12 +8,22 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "shaders", "shaders", "{406A9D28-5440-4AB5-90B7-35635C467B75}"
 	ProjectSection(SolutionItems) = preProject
 		gala\shaders\simple_shader.frag = gala\shaders\simple_shader.frag
+		gala\shaders\simple_shader.frag.spv = gala\shaders\simple_shader.frag.spv
 		gala\shaders\simple_shader.vert = gala\shaders\simple_shader.vert
+		gala\shaders\simple_shader.vert.spv = gala\shaders\simple_shader.vert.spv
 	EndProjectSection
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{B064B53A-65B6-4545-9561-87FFDE8D5E93}"
 	ProjectSection(SolutionItems) = preProject
 		compile.bat = compile.bat
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "models", "models", "{A4AF4E86-C7B7-4B52-92D9-A44445CE8DB1}"
+	ProjectSection(SolutionItems) = preProject
+		gala\models\colored_cube.obj = gala\models\colored_cube.obj
+		gala\models\cube.obj = gala\models\cube.obj
+		gala\models\flat_vase.obj = gala\models\flat_vase.obj
+		gala\models\smooth_vase.obj = gala\models\smooth_vase.obj
 	EndProjectSection
 EndProject
 Global
@@ -35,6 +45,10 @@ Global
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{406A9D28-5440-4AB5-90B7-35635C467B75} = {B064B53A-65B6-4545-9561-87FFDE8D5E93}
+		{A4AF4E86-C7B7-4B52-92D9-A44445CE8DB1} = {B064B53A-65B6-4545-9561-87FFDE8D5E93}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {BD12DDF0-06FC-4380-ADE7-8EFEE4B73028}

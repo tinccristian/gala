@@ -1,129 +1,82 @@
 #include "first_app.h"
 
+#include "movement_controller.h"
+#include "gala_camera.h"
+#include "simple_render_system.h"
+
+// libs
+#define GLM_FORCE_RADIANS
+#define GLM_FORCE_DEPTH_ZERO_TO_ONE
+#include <glm/glm.hpp>
+#include <glm/gtc/constants.hpp>
 
 // std
-#include <stdexcept>
 #include <array>
+#include <chrono>
+#include <cassert>
+#include <stdexcept>
 
-namespace gala
-{
-	FirstApp::FirstApp()
-	{
-		createPipelineLayout();
-		createPipeline();
-		createCommandBuffers();
-	}
+namespace gala {
+	float MAX_FRAME_RATE = 1000;
 
-	FirstApp::~FirstApp()
-	{
-		vkDestroyPipelineLayout(galaDevice.device(), pipelineLayout, nullptr);
-	}
+	FirstApp::FirstApp() { loadGameObjects(); }
 
-	void FirstApp::run()
-	{
-		while (!galaWindow.shouldClose())
-		{
+	FirstApp::~FirstApp() {}
+
+	void FirstApp::run() {
+		SimpleRenderSystem simpleRenderSystem{ galaDevice, galaRenderer.getSwapChainRenderPass() };
+		GalaCamera camera{};
+		//camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
+		camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
+
+		auto viewerObject = GalaGameObject::createGameObject();
+		MovementController cameraController{};
+
+		auto currentTime = std::chrono::high_resolution_clock::now();
+
+		while (!galaWindow.shouldClose()) {
 			glfwPollEvents();
-			drawFrame();
-		}
-	}
 
-	void FirstApp::createPipelineLayout()
-	{
-		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = 0;
-		pipelineLayoutInfo.pSetLayouts = nullptr;
-		pipelineLayoutInfo.pushConstantRangeCount = 0;
-		pipelineLayoutInfo.pPushConstantRanges = nullptr;
-		if (vkCreatePipelineLayout(galaDevice.device(), &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to create pipeline layout!");
-		}
-	}
+			auto newTime = std::chrono::high_resolution_clock::now();
+			float frameTime = std::chrono::duration<float, std::chrono::seconds::period>(newTime - currentTime).count();
+			currentTime = newTime;
 
-	void FirstApp::createPipeline()
-	{
-		PipelineConfigInfo pipelineConfig{};
-		GalaPipeline::defaultPipelineConfigInfo(
-			pipelineConfig,
-			galaSwapChain.width(),
-			galaSwapChain.height());
-		pipelineConfig.renderPass = galaSwapChain.getRenderPass();
-		pipelineConfig.pipelineLayout = pipelineLayout;
-		galaPipeline = std::make_unique<GalaPipeline>(
-			galaDevice,
-			"shaders/simple_shader.vert.spv",
-			"shaders/simple_shader.frag.spv",
-			pipelineConfig);
-	}
+			frameTime = glm::min(frameTime, MAX_FRAME_RATE);
 
+			cameraController.moveInPlaneXZ(galaWindow.getGLFWwindow(), frameTime, viewerObject);
+			camera.setViewYXZ(viewerObject.transform.translation, viewerObject.transform.rotation);
 
-	void FirstApp::createCommandBuffers()
-	{
-		commandBuffers.resize(galaSwapChain.imageCount());
+			float aspect = galaRenderer.getAspectRatio();
+			//camera.setOrthographicProjection(-aspect, aspect, -1, 1, -1, 1);
 
-		VkCommandBufferAllocateInfo allocInfo{};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = galaDevice.getCommandPool();
-		allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
+			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
-		if (vkAllocateCommandBuffers(galaDevice.device(), &allocInfo, commandBuffers.data()) != VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to allocate command buffers!");
-		}
-		for (int i = 0; i < commandBuffers.size(); i++)
-		{
-			VkCommandBufferBeginInfo beginInfo{};
-			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to begin recording command buffers!");
-			}
-
-			VkRenderPassBeginInfo renderPassInfo{};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-			renderPassInfo.renderPass = galaSwapChain.getRenderPass();
-			renderPassInfo.framebuffer = galaSwapChain.getFrameBuffer(i);
-
-			renderPassInfo.renderArea.offset = { 0,0 };
-			renderPassInfo.renderArea.extent = galaSwapChain.getSwapChainExtent();
-
-			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.1f, 0.1f, 0.1f, 0.1f };
-			clearValues[1].depthStencil = {1.0f, 0};
-			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
-			renderPassInfo.pClearValues = clearValues.data();
-
-			vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
-
-			galaPipeline->bind(commandBuffers[i]);
-			vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
-
-			vkCmdEndRenderPass(commandBuffers[i]);
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-			{
-				throw std::runtime_error("failed to record command buffer!");
+			if (auto commandBuffer = galaRenderer.beginFrame()) {
+				galaRenderer.beginSwapChainRenderPass(commandBuffer);
+				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+				galaRenderer.endSwapChainRenderPass(commandBuffer);
+				galaRenderer.endFrame();
 			}
 		}
-	}
-	void FirstApp::drawFrame()
-	{
-		uint32_t imageIndex;
-		auto result = galaSwapChain.acquireNextImage(&imageIndex);
 
-		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-		{
-			throw std::runtime_error("failed to acquire swap chain image!");
-		}
-
-		result = galaSwapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
-		if(result!= VK_SUCCESS)
-		{
-			throw std::runtime_error("failed to present swap chain image!");
-		}
+		vkDeviceWaitIdle(galaDevice.device());
 	}
 
+	void FirstApp::loadGameObjects() {
+		std::shared_ptr<GalaModel> galaModel = GalaModel::createModelFromFile (galaDevice, "D:\\Projects\\gala\\gala\\models\\flat_vase.obj"); //check if obj is created
+
+		auto flatVase = GalaGameObject::createGameObject();
+		flatVase.model = galaModel;
+		flatVase.transform.translation = { -.5f,.5f,2.5f };
+		flatVase.transform.scale = glm::vec3(3.f, 1.5f, 3.f);
+		gameObjects.push_back(std::move(flatVase));
+
+		galaModel = GalaModel::createModelFromFile (galaDevice, "D:\\Projects\\gala\\gala\\models\\smooth_vase.obj"); //check if obj is created
+
+		auto smoothVase = GalaGameObject::createGameObject();
+		smoothVase.model = galaModel;
+		smoothVase.transform.translation = { .0f,.5f,2.5f };
+		smoothVase.transform.scale = glm::vec3(3.f, 1.5f, 3.f);
+		gameObjects.push_back(std::move(smoothVase));
+	}
 }
