@@ -62,6 +62,12 @@
     <ClCompile Include="gala_game_object.cpp">
       <Filter>Source Files\core</Filter>
     </ClCompile>
+    <ClCompile Include="gala_buffer.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="gala_buffer.h">
+      <Filter>Header Files\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="gala_camera.h">
@@ -101,6 +107,9 @@
       <Filter>Header Files\lib</Filter>
     </ClInclude>
     <ClInclude Include="gala_utils.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="gala_frame_info.h">
       <Filter>Header Files\core</Filter>
     </ClInclude>
   </ItemGroup>

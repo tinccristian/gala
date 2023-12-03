@@ -3,6 +3,7 @@
 #include "movement_controller.h"
 #include "gala_camera.h"
 #include "simple_render_system.h"
+#include "gala_buffer.h"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -17,6 +18,12 @@
 #include <stdexcept>
 
 namespace gala {
+
+	struct GlobalUbo {
+		glm::mat4 projectionView{ 1.f };
+		glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f,-3.f,-1.f });
+	};
+
 	float MAX_FRAME_RATE = 1000;
 
 	FirstApp::FirstApp() { loadGameObjects(); }
@@ -24,6 +31,18 @@ namespace gala {
 	FirstApp::~FirstApp() {}
 
 	void FirstApp::run() {
+
+		std::vector<std::unique_ptr<GalaBuffer>> uboBuffers(GalaSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < uboBuffers.size(); i++) {
+			uboBuffers[i] = std::make_unique<GalaBuffer>(
+				galaDevice,
+				sizeof(GlobalUbo),
+				1,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+			uboBuffers[i]->map();
+		}
+
 		SimpleRenderSystem simpleRenderSystem{ galaDevice, galaRenderer.getSwapChainRenderPass() };
 		GalaCamera camera{};
 		//camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
@@ -52,8 +71,23 @@ namespace gala {
 			camera.setPerspectiveProjection(glm::radians(50.f), aspect, 0.1f, 10.f);
 
 			if (auto commandBuffer = galaRenderer.beginFrame()) {
+				int frameIndex = galaRenderer.getFrameIndex();
+				FrameInfo frameInfo{
+					frameIndex,
+					frameTime,
+					commandBuffer,
+					camera
+				};
+
+				//update
+				GlobalUbo ubo{};
+				ubo.projectionView = camera.getProjection() * camera.getView();
+				uboBuffers[frameIndex]->writeToBuffer(&ubo);
+				uboBuffers[frameIndex]->flush();
+
+				//render
 				galaRenderer.beginSwapChainRenderPass(commandBuffer);
-				simpleRenderSystem.renderGameObjects(commandBuffer, gameObjects, camera);
+				simpleRenderSystem.renderGameObjects(frameInfo, gameObjects);
 				galaRenderer.endSwapChainRenderPass(commandBuffer);
 				galaRenderer.endFrame();
 			}

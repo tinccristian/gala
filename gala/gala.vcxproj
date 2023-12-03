@@ -259,11 +259,14 @@
     <ClCompile Include="gala_swap_chain.cpp" />
     <ClCompile Include="simple_render_system.cpp" />
     <ClCompile Include="movement_controller.cpp" />
+    <ClCompile Include="gala_buffer.cpp" />
+    <ClCompile Include="gala_buffer.h" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\lib\tiny_obj_loader\tiny_obj_loader.h" />
     <ClInclude Include="first_app.h" />
     <ClInclude Include="gala_camera.h" />
+    <ClInclude Include="gala_frame_info.h" />
     <ClInclude Include="gala_game_object.h" />
     <ClInclude Include="gala_model.h" />
     <ClInclude Include="gala_pipeline.h" />

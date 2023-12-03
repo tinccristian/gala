@@ -1,6 +1,7 @@
 #pragma once
 
 #include "gala_device.h"
+#include "gala_buffer.h"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -52,13 +53,11 @@ namespace gala {
 
 		GalaDevice& galaDevice;
 
-		VkBuffer vertexBuffer;
-		VkDeviceMemory vertexBufferMemory;
+		std::unique_ptr<GalaBuffer> vertexBuffer;
 		uint32_t vertexCount;
 
 		bool hasIndexBuffer=false;
-		VkBuffer indexBuffer;
-		VkDeviceMemory indexBufferMemory;
+		std::unique_ptr<GalaBuffer> indexBuffer;
 		uint32_t indexCount;
 	};
 }
