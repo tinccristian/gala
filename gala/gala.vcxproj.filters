@@ -9,79 +9,101 @@
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="Resource Files">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    <Filter Include="Source Files\user">
+      <UniqueIdentifier>{3c7a7f4a-67c1-4a81-8fc0-34e3dc850289}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\core">
+      <UniqueIdentifier>{fe6bc1c5-4e21-4743-8fd7-fffa1ac2ab23}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\core">
+      <UniqueIdentifier>{ba75e7a9-4474-4cde-81d9-b1d5d8817ee6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\lib">
+      <UniqueIdentifier>{17e590cb-28fd-4dd7-babd-6991df1e76d6}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\user">
+      <UniqueIdentifier>{48392c95-2eec-4f80-a997-4bb3c9a96d64}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="main.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gala_window.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="first_app.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gala_pipeline.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="gala_camera.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="gala_device.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="gala_swap_chain.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="gala_model.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="gala_pipeline.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="gala_renderer.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="gala_swap_chain.cpp">
+      <Filter>Source Files\core</Filter>
+    </ClCompile>
+    <ClCompile Include="gala_window.cpp">
+      <Filter>Source Files\core</Filter>
     </ClCompile>
     <ClCompile Include="simple_render_system.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\user</Filter>
     </ClCompile>
-    <ClCompile Include="gala_camera.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="first_app.cpp">
+      <Filter>Source Files\user</Filter>
     </ClCompile>
     <ClCompile Include="keyboard_movement_controller.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\user</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files\user</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="gala_window.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="first_app.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gala_pipeline.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gala_camera.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
     <ClInclude Include="gala_device.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gala_swap_chain.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="gala_model.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\core</Filter>
     </ClInclude>
     <ClInclude Include="gala_game_object.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="gala_model.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="gala_pipeline.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
     <ClInclude Include="gala_renderer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\core</Filter>
     </ClInclude>
-    <ClInclude Include="simple_render_system.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gala_swap_chain.h">
+      <Filter>Header Files\core</Filter>
     </ClInclude>
-    <ClInclude Include="gala_camera.h">
-      <Filter>Header Files</Filter>
+    <ClInclude Include="gala_window.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+    <ClInclude Include="first_app.h">
+      <Filter>Header Files\user</Filter>
     </ClInclude>
     <ClInclude Include="keyboard_movement_controller.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\user</Filter>
     </ClInclude>
+    <ClInclude Include="simple_render_system.h">
+      <Filter>Header Files\user</Filter>
+    </ClInclude>
+    <ClInclude Include="..\lib\tiny_obj_loader\tiny_obj_loader.h">
+      <Filter>Header Files\lib</Filter>
+    </ClInclude>
+    <ClInclude Include="gala_utils.h">
+      <Filter>Header Files\core</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="compile.bat">
+      <Filter>Source Files</Filter>
+    </None>
   </ItemGroup>
 </Project>

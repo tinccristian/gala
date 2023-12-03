@@ -115,20 +115,22 @@ namespace gala {
 		if (deviceCount == 0) {
 			throw std::runtime_error("failed to find GPUs with Vulkan support!");
 		}
+		#ifdef _DEBUG
 		std::cout << "Device count: " << deviceCount << std::endl;
+		#endif
 		std::vector<VkPhysicalDevice> devices(deviceCount);
 		vkEnumeratePhysicalDevices(instance, &deviceCount, devices.data());
 
-		for (const auto& device : devices) {
-			if (isDeviceSuitable(device)) {
-				physicalDevice = device;
-				break;
-			}
-		}
-
-		//if (isDeviceSuitable(devices[1])) {     //Always pick intel
-		//	physicalDevice = devices[1];
+		//for (const auto& device : devices) {
+		//	if (isDeviceSuitable(device)) {
+		//		physicalDevice = device;
+		//		break;
+		//	}
 		//}
+
+		if (isDeviceSuitable(devices[1])) {     //Always pick intel
+			physicalDevice = devices[1];
+		}
 		if (physicalDevice == VK_NULL_HANDLE) {
 			throw std::runtime_error("failed to find a suitable GPU!");
 		}
@@ -285,17 +287,25 @@ namespace gala {
 		std::vector<VkExtensionProperties> extensions(extensionCount);
 		vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
+		#ifdef _DEBUG
 		std::cout << "available extensions:" << std::endl;
+		#endif
 		std::unordered_set<std::string> available;
 		for (const auto& extension : extensions) {
+			#ifdef _DEBUG
 			std::cout << "\t" << extension.extensionName << std::endl;
+			#endif
 			available.insert(extension.extensionName);
 		}
 
+		#ifdef _DEBUG
 		std::cout << "required extensions:" << std::endl;
+		#endif
 		auto requiredExtensions = getRequiredExtensions();
 		for (const auto& required : requiredExtensions) {
+			#ifdef _DEBUG
 			std::cout << "\t" << required << std::endl;
+			#endif
 			if (available.find(required) == available.end()) {
 				throw std::runtime_error("Missing required glfw extension");
 			}
