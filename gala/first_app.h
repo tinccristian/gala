@@ -1,5 +1,6 @@
 #pragma once
 
+#include "gala_descriptors.h"
 #include "gala_device.h"
 #include "gala_game_object.h"
 #include "gala_renderer.h"
@@ -30,6 +31,7 @@ namespace gala {
 		GalaDevice galaDevice{ galaWindow };
 		GalaRenderer galaRenderer{ galaWindow, galaDevice };
 
+		std::unique_ptr<GalaDescriptorPool> globalPool{};
 		std::vector<GalaGameObject> gameObjects;
 	};
 }

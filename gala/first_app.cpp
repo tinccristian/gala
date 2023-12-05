@@ -1,9 +1,9 @@
 #include "first_app.h"
 
 #include "movement_controller.h"
+#include "gala_buffer.h"
 #include "gala_camera.h"
 #include "simple_render_system.h"
-#include "gala_buffer.h"
 
 // libs
 #define GLM_FORCE_RADIANS
@@ -20,30 +20,51 @@
 namespace gala {
 
 	struct GlobalUbo {
-		glm::mat4 projectionView{ 1.f };
-		glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f,-3.f,-1.f });
+		alignas(16) glm::mat4 projectionView{ 1.f };
+		alignas(16) glm::vec3 lightDirection = glm::normalize(glm::vec3{ -1.f,-3.f,-1.f });
 	};
 
 	float MAX_FRAME_RATE = 1000;
 
-	FirstApp::FirstApp() { loadGameObjects(); }
+	FirstApp::FirstApp() {
+		globalPool = GalaDescriptorPool::Builder(galaDevice)
+			.setMaxSets(GalaSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.addPoolSize(VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, GalaSwapChain::MAX_FRAMES_IN_FLIGHT)
+			.build();
+		loadGameObjects(); 
+	}
 
 	FirstApp::~FirstApp() {}
 
 	void FirstApp::run() {
 
-		std::vector<std::unique_ptr<GalaBuffer>> uboBuffers(GalaSwapChain::MAX_FRAMES_IN_FLIGHT);
+		std::vector < std::unique_ptr<GalaBuffer>> uboBuffers(GalaSwapChain::MAX_FRAMES_IN_FLIGHT);
 		for (int i = 0; i < uboBuffers.size(); i++) {
 			uboBuffers[i] = std::make_unique<GalaBuffer>(
 				galaDevice,
 				sizeof(GlobalUbo),
 				1,
+				GalaSwapChain::MAX_FRAMES_IN_FLIGHT,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT);
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT );
 			uboBuffers[i]->map();
 		}
 
-		SimpleRenderSystem simpleRenderSystem{ galaDevice, galaRenderer.getSwapChainRenderPass() };
+		auto globalSetLayout = GalaDescriptorSetLayout::Builder(galaDevice)
+			.addBinding(0, VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, VK_SHADER_STAGE_VERTEX_BIT)
+			.build();
+
+		std::vector<VkDescriptorSet> globalDescriptorSets(GalaSwapChain::MAX_FRAMES_IN_FLIGHT);
+		for (int i = 0; i < globalDescriptorSets.size(); i++) {
+			auto bufferInfo = uboBuffers[i]->descriptorInfo();
+			GalaDescriptorWriter(*globalSetLayout, *globalPool)
+				.writeBuffer(0, &bufferInfo)
+				.build(globalDescriptorSets[i]);
+		}
+		SimpleRenderSystem simpleRenderSystem{
+			galaDevice,
+			galaRenderer.getSwapChainRenderPass(),
+			globalSetLayout->getDescriptorSetLayout() };
 		GalaCamera camera{};
 		//camera.setViewDirection(glm::vec3(0.f), glm::vec3(0.5f, 0.f, 1.f));
 		camera.setViewTarget(glm::vec3(-1.f, -2.f, 2.f), glm::vec3(0.f, 0.f, 2.5f));
@@ -76,7 +97,8 @@ namespace gala {
 					frameIndex,
 					frameTime,
 					commandBuffer,
-					camera
+					camera,
+					globalDescriptorSets[frameIndex]
 				};
 
 				//update

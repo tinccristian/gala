@@ -249,6 +249,7 @@
   <ItemGroup>
     <ClCompile Include="first_app.cpp" />
     <ClCompile Include="gala_camera.cpp" />
+    <ClCompile Include="gala_descriptors.cpp" />
     <ClCompile Include="gala_game_object.cpp" />
     <ClCompile Include="gala_model.cpp" />
     <ClCompile Include="gala_pipeline.cpp" />
@@ -266,6 +267,7 @@
     <ClInclude Include="..\lib\tiny_obj_loader\tiny_obj_loader.h" />
     <ClInclude Include="first_app.h" />
     <ClInclude Include="gala_camera.h" />
+    <ClInclude Include="gala_descriptors.h" />
     <ClInclude Include="gala_frame_info.h" />
     <ClInclude Include="gala_game_object.h" />
     <ClInclude Include="gala_model.h" />

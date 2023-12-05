@@ -11,5 +11,6 @@ namespace gala {
 		float frameTime;
 		VkCommandBuffer commandBuffer;
 		GalaCamera& camera;
+		VkDescriptorSet globalDescriptorSet;
 	};
 }
